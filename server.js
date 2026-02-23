@@ -5,11 +5,14 @@ require('dotenv').config();
 
 const app = express();
 
+// 🚨 NEW PROXY FIX: Tell Express it is behind Render's router so it grabs the REAL IP addresses!
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// This will show you in the terminal whenever your phone hits the server
+// This will show you in the terminal whenever a phone hits the server
 app.use((req, res, next) => {
   console.log(`📡 ${req.method} request to ${req.url} from ${req.ip}`);
   next();
