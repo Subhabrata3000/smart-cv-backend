@@ -34,12 +34,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-// 🚨 FIX 1: Only listen locally if we are NOT on Vercel
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server is running on port ${PORT}`);
-  });
-}
-
-// 🚨 FIX 2: VERCEL REQUIRES THIS LINE TO WORK PROPERLY!
-module.exports = app;
+// 🚨 FIX FOR RENDER: Render requires the server to listen continuously on 0.0.0.0
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
+});
