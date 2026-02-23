@@ -6,7 +6,7 @@ require('dotenv').config();
 const app = express();
 
 // 🚨 NEW PROXY FIX: Tell Express it is behind Render's router so it grabs the REAL IP addresses!
-app.set('trust proxy', 1);
+app.set('trust proxy', true);
 
 // Middleware
 app.use(cors());

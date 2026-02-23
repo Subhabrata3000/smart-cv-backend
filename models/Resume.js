@@ -2,6 +2,14 @@ const mongoose = require('mongoose');
 
 // --- SUB-SCHEMAS FOR COMPLEX OBJECTS ---
 
+const PersonalDetailsSchema = new mongoose.Schema({
+  fullName: { type: String, default: "" },
+  email: { type: String, default: "" },
+  phone: { type: String, default: "" },
+  address: { type: String, default: "" },
+  profileImageUrl: { type: String, default: "" }
+});
+
 const EducationSchema = new mongoose.Schema({
   school: { type: String, default: "" },
   degree: { type: String, default: "" },
@@ -13,16 +21,27 @@ const ExperienceSchema = new mongoose.Schema({
   role: { type: String, default: "" },
   duration: { type: String, default: "" },
   // Adding description for AI-polished content
-  description: { type: String, default: "" } 
+  description: { type: String, default: "" },
+  // ✅ FIX 1: Added type field ('fulltime' | 'internship')
+  type: { type: String, default: 'fulltime' }
 });
 
-const PersonalDetailsSchema = new mongoose.Schema({
-  fullName: { type: String, default: "" },
-  email: { type: String, default: "" },
-  phone: { type: String, default: "" },
-  address: { type: String, default: "" },
-  profileImageUrl: { type: String, default: "" }
+// ✅ FIX 2: Added Project Schema
+const ProjectSchema = new mongoose.Schema({
+  title: { type: String, default: "" },
+  description: { type: String, default: "" },
+  hostedLink: { type: String, default: "" }
 });
+
+// ✅ FIX 3: Added Certification Schema
+const CertificationSchema = new mongoose.Schema({
+  name: { type: String, default: "" },
+  description: { type: String, default: "" },
+  imageUrl: { type: String, default: "" }
+});
+
+
+// --- MAIN RESUME SCHEMA ---
 
 const ResumeSchema = new mongoose.Schema({
   userId: {
@@ -41,17 +60,17 @@ const ResumeSchema = new mongoose.Schema({
     default: () => ({})
   },
 
-  // Arrays of Sub-documents (Matches Flutter List<Education> and List<Experience>)
-  education: [EducationSchema],
-  
-  experience: [ExperienceSchema],
+  // Arrays of Sub-documents
+  education: { type: [EducationSchema], default: [] },
+  experience: { type: [ExperienceSchema], default: [] },
+  projects: { type: [ProjectSchema], default: [] },             // ✅ Added projects
+  certifications: { type: [CertificationSchema], default: [] }, // ✅ Added certifications
 
   // Simple Arrays
   skills: {
     type: [String],
     default: []
   },
-
   languages: {
     type: [String],
     default: []
@@ -71,7 +90,5 @@ const ResumeSchema = new mongoose.Schema({
 }, { 
   timestamps: true // Automatically adds createdAt and updatedAt fields
 });
-
-// ✅ The duplicate 'ResumeSchema.index' line has been successfully removed.
 
 module.exports = mongoose.model('Resume', ResumeSchema);
