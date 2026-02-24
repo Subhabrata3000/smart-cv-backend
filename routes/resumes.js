@@ -133,6 +133,10 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
+// ════════════════════════════════════════════════════════════════════════
+// 🚨 NEW ROUTES: 3-DOT CONTEXT MENU ACTIONS (DELETE, RENAME, DUPLICATE)
+// ════════════════════════════════════════════════════════════════════════
+
 /**
  * @route   DELETE /api/resumes/:id
  * @desc    Delete a specific resume entry
@@ -143,6 +147,51 @@ router.delete('/:id', async (req, res) => {
     res.json({ success: true, message: "Resume deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: "Deletion failed" });
+  }
+});
+
+/**
+ * @route   PUT /api/resumes/:id/rename
+ * @desc    Rename a specific resume
+ */
+router.put('/:id/rename', async (req, res) => {
+  try {
+    const updatedResume = await Resume.findByIdAndUpdate(
+      req.params.id, 
+      { resumeTitle: req.body.newTitle }, 
+      { new: true }
+    );
+    res.status(200).json({ success: true, data: updatedResume });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * @route   POST /api/resumes/:id/duplicate
+ * @desc    Duplicate an existing resume
+ */
+router.post('/:id/duplicate', async (req, res) => {
+  try {
+    const originalResume = await Resume.findById(req.params.id);
+    if (!originalResume) return res.status(404).json({ error: 'Resume not found' });
+
+    // Convert mongoose document to plain JS object and strip exact identifiers
+    const resumeData = originalResume.toObject();
+    delete resumeData._id;
+    delete resumeData.createdAt;
+    delete resumeData.updatedAt;
+    
+    // Append (Copy) to the title
+    resumeData.resumeTitle = `${resumeData.resumeTitle} (Copy)`;
+
+    // Save as brand new document
+    const duplicatedResume = new Resume(resumeData);
+    await duplicatedResume.save();
+    
+    res.status(201).json({ success: true, data: duplicatedResume });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

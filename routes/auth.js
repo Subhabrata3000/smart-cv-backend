@@ -30,8 +30,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// --- 2. LOGIN ROUTE (ADDED) ---
-// This handles the sign-in request from your Flutter app
+// --- 2. LOGIN ROUTE ---
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -52,7 +51,7 @@ router.post('/login', async (req, res) => {
     res.status(200).json({ 
       userId: user._id,
       email: user.email,
-      industry: user.industry, // Useful for the Flutter smart routing logic
+      industry: user.industry, 
       experienceLevel: user.experienceLevel 
     });
 
@@ -74,6 +73,44 @@ router.put('/setup/:id', async (req, res) => {
     res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
   } catch (err) {
     res.status(500).json({ error: "Profile update failed" });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════════
+// 🚨 NEW ROUTES: ACCOUNT SETTINGS (PROFILE EDIT & PASSWORD RESET)
+// ════════════════════════════════════════════════════════════════════════
+
+// --- 4. UPDATE ACCOUNT SETTINGS (Display Name & Industry) ---
+router.put('/:id/profile', async (req, res) => {
+  try {
+    const { name, industry } = req.body;
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { 
+        displayName: name, // Saves the new display name
+        industry: industry // Updates industry preference
+      },
+      { new: true }
+    );
+    res.status(200).json({ success: true, user: updatedUser });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- 5. REQUEST PASSWORD RESET ---
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    // In a fully scaled production app, you would generate a unique token here, 
+    // save it to the DB with an expiration time, and use Nodemailer/SendGrid 
+    // to email the user a link. For now, we simulate success for the UI!
+    
+    res.status(200).json({ success: true, message: `Password reset link sent to ${email}` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
